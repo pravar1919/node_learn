@@ -1,3 +1,5 @@
+const helmet = require("helmet");
+const morgan = require("morgan");
 const Joi = require("joi");
 const { log, auth } = require("./middleware");
 const express = require("express");
@@ -10,6 +12,9 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static("public"));
 
+app.use(helmet()); // Helps secure your apps by setting various HTTP headers.
+
+app.use(morgan("tiny")); // HTTP request logger.
 // Middleware
 app.use(log);
 
