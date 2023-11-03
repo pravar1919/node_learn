@@ -1,10 +1,15 @@
+const Joi = require("joi");
+const { log, auth } = require("./middleware");
 const express = require("express");
 require("dotenv").config();
 
-const Joi = require("joi");
-
 const app = express();
 app.use(express.json());
+
+// Middleware
+app.use(log);
+
+app.use(auth);
 
 const courses = [
   { id: 1, name: "Course 1" },
