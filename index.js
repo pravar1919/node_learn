@@ -31,10 +31,8 @@ app.get("/courses/:id", (req, res) => {
 
 app.post("/courses/", (req, res) => {
   const { value, error } = validateCourses(req.body);
-  if (error) {
-    res.status(400).send(error.details);
-    return;
-  }
+  if (error) return res.status(400).send(error.details);
+
   const course = {
     id: courses.length + 1,
     name: req.body.name,
@@ -46,16 +44,11 @@ app.post("/courses/", (req, res) => {
 app.put("/courses/:id", (req, res) => {
   courseId = req.params.id;
   const course = courses.find((course) => course.id === parseInt(courseId));
-  if (!course) {
-    res.status(404).send("No Course With The given ID Was Found!!!");
-    return;
-  }
+  if (!course)
+    return res.status(404).send("No Course With The given ID Was Found!!!");
 
   const { value, error } = validateCourses(req.body);
-  if (error) {
-    res.status(400).send(error.details);
-    return;
-  }
+  if (error) return res.status(400).send(error.details);
 
   course.name = req.body.name;
   res.send(course);
