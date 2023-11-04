@@ -1,11 +1,11 @@
-const helmet = require("helmet");
 const morgan = require("morgan");
+const helmet = require("helmet");
 const Joi = require("joi");
 const { log, auth } = require("./middleware");
 const express = require("express");
+const app = express();
 require("dotenv").config();
 
-const app = express();
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
@@ -14,7 +14,9 @@ app.use(express.static("public"));
 
 app.use(helmet()); // Helps secure your apps by setting various HTTP headers.
 
-app.use(morgan("tiny")); // HTTP request logger.
+if (process.env.NODE_ENV === "developement") {
+  app.use(morgan("tiny")); // HTTP request logger.
+}
 // Middleware
 app.use(log);
 
@@ -80,14 +82,14 @@ app.delete("/courses/:id", (req, res) => {
   res.status(204).send();
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Listening on port ${port}....`);
-});
-
 const validateCourses = (course) => {
   const schema = Joi.object({
     name: Joi.string().min(3).required(),
   });
   return schema.validate(course);
 };
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Listening on port ${port}....`);
+});
