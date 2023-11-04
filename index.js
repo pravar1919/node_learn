@@ -9,6 +9,8 @@ const express = require("express");
 const app = express();
 require("dotenv").config();
 
+app.set("view engine", "pug");
+app.set("views", "./views"); //default
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
@@ -34,7 +36,8 @@ const courses = [
 app.get("/", (req, res) => {
   console.log(req);
   console.log(res);
-  res.send({ success: "hello" });
+  // res.send({ success: "hello" });
+  res.render("index", { title: "My Express App", message: "Hello!!" });
 });
 
 app.get("/courses", (req, res) => {
