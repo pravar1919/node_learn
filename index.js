@@ -1,3 +1,4 @@
+const config = require("config");
 const morgan = require("morgan");
 const helmet = require("helmet");
 const Joi = require("joi");
@@ -93,3 +94,7 @@ const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Listening on port ${port}....`);
 });
+
+console.log("Application name: " + config.get("name"));
+console.log("Mail Server " + config.get("mail.host"));
+console.log("Mail Password " + config.get("mail.password"));
