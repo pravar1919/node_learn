@@ -1,79 +1,41 @@
+const startupDebugger = require("debug")("app:startup");
+const dbDebugger = require("debug")("app:db");
+const config = require("config");
+const morgan = require("morgan");
+const helmet = require("helmet");
+const Joi = require("joi");
+const { log, auth } = require("./middleware/logger");
 const express = require("express");
+const app = express();
+const courses = require("./routes/courses");
+const home = require("./routes/home");
 require("dotenv").config();
 
-const Joi = require("joi");
-
-const app = express();
+app.set("view engine", "pug");
+app.set("views", "./views"); //default
 app.use(express.json());
 
-const courses = [
-  { id: 1, name: "Course 1" },
-  { id: 2, name: "Course 2" },
-  { id: 3, name: "Course 3" },
-];
+app.use(express.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
-  console.log(req);
-  console.log(res);
-  res.send({ success: "hello" });
-});
+app.use(express.static("public"));
 
-app.get("/courses", (req, res) => {
-  res.send({ data: courses });
-});
+app.use(helmet()); // Helps secure your apps by setting various HTTP headers.
+app.use("/", home);
+app.use("/courses", courses);
 
-app.get("/courses/:id", (req, res) => {
-  courseId = req.params.id;
-  const course = courses.find((course) => course.id === parseInt(courseId));
-  if (!course) res.status(404).send("No Course Found!!!");
-  res.send(course).status(200);
-});
+if (process.env.NODE_ENV === "developement") {
+  app.use(morgan("tiny")); // HTTP request logger.
+}
+// Middleware
+app.use(log);
 
-app.post("/courses/", (req, res) => {
-  const { value, error } = validateCourses(req.body);
-  if (error) return res.status(400).send(error.details);
-
-  const course = {
-    id: courses.length + 1,
-    name: req.body.name,
-  };
-  courses.push(course);
-  res.send(course);
-});
-
-app.put("/courses/:id", (req, res) => {
-  courseId = req.params.id;
-  const course = courses.find((course) => course.id === parseInt(courseId));
-  if (!course)
-    return res.status(404).send("No Course With The given ID Was Found!!!");
-
-  const { value, error } = validateCourses(req.body);
-  if (error) return res.status(400).send(error.details);
-
-  course.name = req.body.name;
-  res.send(course);
-});
-
-app.delete("/courses/:id", (req, res) => {
-  courseId = req.params.id;
-  const course = courses.find((course) => course.id === parseInt(courseId));
-  if (!course)
-    return res.status(404).send("No Course With The given ID Was Found!!!");
-
-  const index = courses.indexOf(course);
-  console.log(courses.find((course) => course.id === parseInt(courseId)));
-  courses.splice(index, 1);
-  res.status(204).send();
-});
+app.use(auth);
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Listening on port ${port}....`);
+  startupDebugger(`Listening on port ${port}....`);
 });
 
-const validateCourses = (course) => {
-  const schema = Joi.object({
-    name: Joi.string().min(3).required(),
-  });
-  return schema.validate(course);
-};
+startupDebugger("Application name: " + config.get("name"));
+startupDebugger("Mail Server " + config.get("mail.host"));
+dbDebugger("Mail Password " + config.get("mail.password"));
