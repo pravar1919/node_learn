@@ -1,3 +1,5 @@
+const startupDebugger = require("debug")("app:startup");
+const dbDebugger = require("debug")("app:db");
 const config = require("config");
 const morgan = require("morgan");
 const helmet = require("helmet");
@@ -92,9 +94,9 @@ const validateCourses = (course) => {
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Listening on port ${port}....`);
+  startupDebugger(`Listening on port ${port}....`);
 });
 
-console.log("Application name: " + config.get("name"));
-console.log("Mail Server " + config.get("mail.host"));
-console.log("Mail Password " + config.get("mail.password"));
+startupDebugger("Application name: " + config.get("name"));
+startupDebugger("Mail Server " + config.get("mail.host"));
+dbDebugger("Mail Password " + config.get("mail.password"));
